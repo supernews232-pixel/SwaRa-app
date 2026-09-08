@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>SwaRa — Usimamizi wa Duka</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%231F3A2E'/%3E%3Ccircle cx='100' cy='100' r='72' fill='%23B07F2A'/%3E%3Ctext x='100' y='131' font-family='Arial, Helvetica, sans-serif' font-size='92' font-weight='700' fill='%231F3A2E' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%231F3A2E'/%3E%3Ccircle cx='100' cy='100' r='72' fill='%23B07F2A'/%3E%3Ctext x='100' y='131' font-family='Arial, Helvetica, sans-serif' font-size='92' font-weight='700' fill='%231F3A2E' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SwaRa">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1F3A2E">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{
+    --bg:#EDEFE3;
+    --surface:#FFFFFF;
+    --surface-alt:#F6F7EC;
+    --ink:#1F3A2E;
+    --ink-soft:#3F5147;
+    --muted:#6B7268;
+    --line:#D9DBC9;
+    --gold:#B07F2A;
+    --gold-soft:#F1E4C6;
+    --brick:#A6402F;
+    --brick-soft:#F3DFD9;
+    --green:#3E7C5A;
+    --green-soft:#DCEBE0;
+    --radius-card:14px;
+    --radius-btn:8px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  #appRoot{display:flex;min-height:100vh;}
+  .sidebar{
+    display:none;
+    flex-direction:column;
+    width:220px;
+    background:var(--ink);
+    color:var(--surface-alt);
+    padding:22px 14px;
+    flex-shrink:0;
+  }
+  .sidebar .brand{
+    font-size:19px;
+    font-weight:700;
+    letter-spacing:.2px;
+    margin:0 6px 26px 6px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .sidebar .brand .coin{
+    width:26px;height:26px;border-radius:50%;background:var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);font-family:var(--mono);font-weight:700;font-size:13px;flex-shrink:0;
+  }
+  .navlink{
+    display:flex;align-items:center;gap:11px;
+    padding:10px 12px;border-radius:8px;
+    color:#CDD6C9;text-decoration:none;
+    font-size:14.5px;font-weight:500;
+    cursor:pointer;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;
+  }
+  .navlink svg{width:18px;height:18px;flex-shrink:0;}
+  .navlink:hover{background:rgba(255,255,255,.06);color:#fff;}
+  .navlink.active{background:var(--gold);color:var(--ink);font-weight:700;}
+  main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px;background:var(--surface);border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:10;
+  }
+  .topbar h1{font-size:17px;margin:0;font-weight:700;color:var(--ink);}
+  .topbar .date{font-size:12.5px;color:var(--muted);font-family:var(--mono);}
+  .iconbtn{
+    border:1px solid var(--line);background:var(--surface);border-radius:8px;
+    width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--ink-soft);flex-shrink:0;
+  }
+  .iconbtn svg{width:18px;height:18px;}
+  .iconbtn:hover{background:var(--surface-alt);}
+  #view{padding:16px;padding-bottom:88px;flex:1;}
+  @media (min-width:900px){
+    .sidebar{display:flex;}
+    #view{padding:26px 30px;padding-bottom:30px;max-width:1100px;}
+    .bottomnav{display:none !important;}
+  }
+  .bottomnav{
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--ink);display:flex;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    overflow-x:auto;z-index:20;border-top:1px solid rgba(255,255,255,.08);
+  }
+  .bottomnav .navlink{flex-direction:column;gap:3px;font-size:10.5px;padding:6px 4px;min-width:58px;border-radius:8px;text-align:center;}
+  .bottomnav .navlink svg{width:19px;height:19px;}
+  .bottomnav .navlink.active{background:transparent;color:var(--gold);}
+
+  h2.viewtitle{font-size:19px;margin:0 0 4px 0;color:var(--ink);}
+  p.viewsub{font-size:13px;color:var(--muted);margin:0 0 18px 0;}
+
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:20px;}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-card);padding:16px;}
+  .stat .label{font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .stat .num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink);}
+  .stat.gold .num{color:var(--gold);}
+  .stat.brick .num{color:var(--brick);}
+  .stat.green .num{color:var(--green);}
+  .hero{
+    background:var(--ink);color:var(--surface-alt);border-radius:var(--radius-card);
+    padding:24px 22px;margin-bottom:18px;
+  }
+  .hero .heronum{font-family:var(--mono);font-size:36px;font-weight:700;color:var(--gold);line-height:1;}
+  .hero .herolabel{font-size:13px;color:#B9C3B5;margin-top:8px;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-card);padding:16px;margin-bottom:14px;}
+  .card h3{margin:0 0 12px 0;font-size:14.5px;color:var(--ink-soft);}
+
+  .toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+  .search{
+    flex:1;min-width:160px;padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius-btn);
+    font-size:14px;background:var(--surface);color:var(--ink);
+  }
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--gold);color:var(--ink);border:none;border-radius:var(--radius-btn);
+    padding:9px 15px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;
+  }
+  .btn:hover{filter:brightness(0.95);}
+  .btn.secondary{background:var(--surface);color:var(--ink);border:1px solid var(--line);}
+  .btn.danger{background:var(--brick-soft);color:var(--brick);}
+  .btn.green{background:var(--green-soft);color:var(--green);}
+  .btn.block{width:100%;justify-content:center;}
+  .btn.sm{padding:6px 10px;font-size:12.5px;}
+  .btn svg{width:15px;height:15px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:11.5px;padding:6px 8px;border-bottom:1px solid var(--line);}
+  td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .mono{font-family:var(--mono);}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+  .pill.low{background:var(--brick-soft);color:var(--brick);}
+  .pill.ok{background:var(--green-soft);color:var(--green);}
+  .pill.debt{background:var(--brick-soft);color:var(--brick);}
+  .pill.paid{background:var(--green-soft);color:var(--green);}
+  .pill.partial{background:var(--gold-soft);color:var(--gold);}
+  .rowactions{display:flex;gap:6px;}
+  .iconsm{border:none;background:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:6px;}
+  .iconsm:hover{background:var(--surface-alt);color:var(--ink);}
+  .iconsm svg{width:16px;height:16px;}
+  .empty{text-align:center;padding:40px 20px;color:var(--muted);}
+  .empty svg{width:36px;height:36px;margin-bottom:10px;opacity:.5;}
+
+  /* POS */
+  .pos-wrap{display:grid;grid-template-columns:1fr;gap:14px;}
+  @media(min-width:900px){.pos-wrap{grid-template-columns:1.3fr 1fr;align-items:start;}}
+  .poslist{max-height:520px;overflow:auto;}
+  .posrow{display:flex;align-items:center;justify-content:space-between;padding:10px 8px;border-bottom:1px solid var(--line);gap:10px;}
+  .posrow .pname{font-weight:600;font-size:14px;}
+  .posrow .pmeta{font-size:12px;color:var(--muted);}
+  .cartitem{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);gap:8px;}
+  .qtybtn{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:15px;line-height:1;}
+  .totalrow{display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:6px;border-top:2px solid var(--ink);}
+  .totalrow .amt{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--gold);}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(31,58,46,.45);display:flex;align-items:flex-end;justify-content:center;z-index:100;}
+  @media(min-width:640px){.overlay{align-items:center;}}
+  .modal{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:460px;max-height:88vh;overflow:auto;padding:20px;}
+  @media(min-width:640px){.modal{border-radius:16px;}}
+  .modal h3{margin:0 0 16px 0;font-size:16px;display:flex;justify-content:space-between;align-items:center;}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:12px 0 5px 0;font-weight:600;}
+  input,select,textarea{
+    width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;
+    font-size:14.5px;background:var(--surface);color:var(--ink);font-family:var(--sans);
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);outline-offset:-1px;}
+  .radiogroup{display:flex;gap:8px;margin-top:6px;}
+  .radiogroup label{flex:1;margin:0;border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;cursor:pointer;font-weight:600;color:var(--ink-soft);}
+  .radiogroup input{width:auto;display:none;}
+  .radiogroup input:checked + span{color:var(--ink);}
+  .radiogroup label:has(input:checked){border-color:var(--gold);background:var(--gold-soft);}
+  .modal-actions{display:flex;gap:10px;margin-top:20px;}
+  .toast{
+    position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:11px 20px;border-radius:30px;
+    font-size:13.5px;z-index:200;box-shadow:0 6px 20px rgba(0,0,0,.2);
+  }
+  @media(min-width:900px){.toast{bottom:26px;}}
+  .filterchips{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .chip{padding:7px 14px;border-radius:20px;border:1px solid var(--line);background:var(--surface);font-size:13px;cursor:pointer;font-weight:600;color:var(--ink-soft);}
+  .chip.active{background:var(--ink);color:var(--gold);border-color:var(--ink);}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+</style>
+</head>
+<body>
+<div id="appRoot">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main>
+    <div class="topbar">
+      <div>
+        <h1 id="topTitle">Dashibodi</h1>
+        <div class="date" id="topDate"></div>
+      </div>
+      <button class="iconbtn" data-nav="settings" title="Mipangilio"></button>
+    </div>
+    <div id="view"></div>
+  </main>
+  <nav class="bottomnav" id="bottomnav"></nav>
+</div>
+<div id="modalRoot"></div>
+<script>
+/* ---------------- ICONS ---------------- */
+const ICONS = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3.5 8.5L12 13l8.5-4.5"/><path d="M12 22V13"/></svg>',
+  cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 002 1.6h9.7a2 2 0 002-1.6L23 6H6"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 000 4h4v-4h-4z"/></svg>',
+  chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>',
+  settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 005 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.14.32.4.58.73.73.32.14.68.19 1.03.13H21a2 2 0 010 4h-.09c-.35-.06-.71 0-1.03.14-.32.14-.6.4-.73.72z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  box_empty:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/></svg>',
+  restock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3.5 8.5L12 13l8.5-4.5"/><path d="M12 22V13"/><path d="M17 3v6M14 6h6" stroke="currentColor"/></svg>',
+  orders:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><path d="M8 11h8M8 15h5"/></svg>',
+  receipt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>'
+};
+
+/* ---------------- STORAGE ---------------- */
+const KEYS = {products:'dm_products', customers:'dm_customers', sales:'dm_sales', expenses:'dm_expenses', orders:'dm_orders', debtPayments:'dm_debtpayments'};
+function isCashierMode(){ return localStorage.getItem('dm_cashier_mode')==='1'; }
+const DB = {
+  read(key){ try{ const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v)?v:[]; }catch(e){ return []; } },
+  write(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
+};
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function money(n){ n = Number(n)||0; return n.toLocaleString('en-US',{maximumFractionDigits:0}); }
+function localISODate(d){
+  d = d || new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function todayISO(){ return localISODate(new Date()); }
+function fmtDate(iso){
+  const d = new Date(iso+'T00:00:00');
+  const months=['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ago','Sep','Okt','Nov','Des'];
+  return d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+}
+function toast(msg){
+  const t = document.createElement('div');
+  t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2200);
+}
+
+/* ---------------- NAV ---------------- */
+const NAVITEMS = [
+  {id:'dashboard', label:'Dashibodi', icon:'home'},
+  {id:'products', label:'Bidhaa', icon:'box'},
+  {id:'sales', label:'Mauzo', icon:'cart'},
+  {id:'orders', label:'Oda', icon:'orders'},
+  {id:'customers', label:'Wateja', icon:'users'},
+  {id:'expenses', label:'Matumizi', icon:'wallet'},
+  {id:'reports', label:'Ripoti', icon:'chart'}
+];
+let currentView = 'dashboard';
+let cart = []; // {productId, name, price, qty, stock}
+let orderModalCart = [];
+let orderModalCustName = '';
+let orderModalCustPhone = '';
+let orderModalProductSearch = '';
+let orderFilter = 'pending';
+
+function renderNav(){
+  const side = NAVITEMS.map(n=>
+    '<button class="navlink'+(n.id===currentView?' active':'')+'" data-nav="'+n.id+'">'+ICONS[n.icon]+'<span>'+n.label+'</span></button>'
+  ).join('');
+  document.getElementById('sidebar').innerHTML =
+    '<div class="brand"><span class="coin">S</span> SwaRa</div>' + side +
+    '<div style="flex:1"></div>' +
+    '<button class="navlink" data-nav="settings">'+ICONS.settings+'<span>Mipangilio</span></button>';
+
+  const bottom = NAVITEMS.map(n=>
+    '<button class="navlink'+(n.id===currentView?' active':'')+'" data-nav="'+n.id+'">'+ICONS[n.icon]+'<span>'+n.label+'</span></button>'
+  ).join('');
+  document.getElementById('bottomnav').innerHTML = bottom;
+
+  const titleMap = {}; NAVITEMS.forEach(n=>titleMap[n.id]=n.label); titleMap.settings='Mipangilio';
+  document.getElementById('topTitle').textContent = titleMap[currentView] || '';
+  const d = new Date();
+  const days=['Jumapili','Jumatatu','Jumanne','Jumatano','Alhamisi','Ijumaa','Jumamosi'];
+  document.getElementById('topDate').textContent = days[d.getDay()]+', '+fmtDate(todayISO());
+}
+
+function navigate(view){
+  if(view==='reports' && isCashierMode()){
+    requireOwnerPin(()=>doNavigate(view));
+    return;
+  }
+  doNavigate(view);
+}
+function doNavigate(view){
+  currentView = view;
+  cart = [];
+  renderNav();
+  render();
+  window.scrollTo(0,0);
+}
+
+document.addEventListener('click', e=>{
+  const navBtn = e.target.closest('[data-nav]');
+  if(navBtn){ navigate(navBtn.getAttribute('data-nav')); }
+});
+
+/* ---------------- MODAL ---------------- */
+function openModal(html){
+  document.getElementById('modalRoot').innerHTML =
+    '<div class="overlay" id="overlay"><div class="modal">'+html+'</div></div>';
+  document.getElementById('overlay').addEventListener('click', e=>{
+    if(e.target.id==='overlay') closeModal();
+  });
+}
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
+
+/* ================= DASHBOARD ================= */
+function renderDashboard(){
+  const products = DB.read(KEYS.products);
+  const sales = DB.read(KEYS.sales);
+  const expenses = DB.read(KEYS.expenses);
+  const customers = DB.read(KEYS.customers);
+  const debtPayments = DB.read(KEYS.debtPayments);
+  const today = todayISO();
+  const cashierMode = isCashierMode();
+
+  const salesToday = sales.filter(s=>s.date===today);
+  const revenueToday = salesToday.reduce((a,s)=>a+s.total,0);
+  const expensesToday = expenses.filter(e=>e.date===today).reduce((a,e)=>a+Number(e.amount),0);
+  const lowStock = products.filter(p=> Number(p.qty) <= Number(p.minStock||5));
+  const stockValue = products.reduce((a,p)=>a+ (Number(p.qty)*Number(p.buyPrice)),0);
+  const totalDebt = customers.reduce((a,c)=>a+Number(c.balance||0),0);
+  const totalCashIn = sales.reduce((a,s)=>a+(s.amountPaid!=null?s.amountPaid:(s.status==='Deni'?0:s.total)),0) + debtPayments.reduce((a,p)=>a+Number(p.amount),0);
+  const totalCashOut = expenses.reduce((a,e)=>a+Number(e.amount),0);
+  const cashBalance = totalCashIn - totalCashOut;
+
+  let html = '';
+  html += '<div class="hero"><div class="heronum">TSh '+money(revenueToday)+'</div><div class="herolabel">Mauzo ya leo &middot; miamala '+salesToday.length+'</div></div>';
+
+  html += '<div class="grid">';
+  if(!cashierMode){
+    html += '<div class="stat gold"><div class="label">Salio la Fedha (Tangu Mwanzo)</div><div class="num">'+money(cashBalance)+'</div></div>';
+    html += '<div class="stat green"><div class="label">Thamani ya Bidhaa Ghalani</div><div class="num">'+money(stockValue)+'</div></div>';
+  }
+  html += '<div class="stat"><div class="label">Matumizi ya leo</div><div class="num">'+money(expensesToday)+'</div></div>';
+  html += '<div class="stat brick"><div class="label">Deni la Wateja</div><div class="num">'+money(totalDebt)+'</div></div>';
+  html += '<div class="stat'+(lowStock.length?' brick':'')+'"><div class="label">Bidhaa Zinazoisha</div><div class="num">'+lowStock.length+'</div></div>';
+  html += '</div>';
+
+  html += '<div class="card"><h3>Bidhaa zinazokaribia kuisha</h3>';
+  if(lowStock.length===0){ html += '<p style="color:var(--muted);font-size:13.5px;margin:0;">Hakuna bidhaa zenye kiwango cha chini kwa sasa.</p>'; }
+  else{
+    html += '<table><thead><tr><th>Bidhaa</th><th>Kiasi Kilichobaki</th><th>Kiwango cha Chini</th>'+(cashierMode?'':'<th></th>')+'</tr></thead><tbody>';
+    lowStock.forEach(p=>{
+      html += '<tr><td>'+esc(p.name)+'</td><td class="mono">'+p.qty+' '+esc(p.unit||'')+'</td><td class="mono">'+ (p.minStock||5) +'</td>'+
+      (cashierMode?'':'<td><button class="btn sm" data-action="add-stock" data-id="'+p.id+'">'+ICONS.restock+' Ongeza</button></td>')+'</tr>';
+    });
+    html += '</tbody></table>';
+  }
+  html += '</div>';
+
+  html += '<div class="card"><h3>Mauzo ya Hivi Karibuni</h3>';
+  const recent = sales.slice(-6).reverse();
+  if(recent.length===0){ html += '<p style="color:var(--muted);font-size:13.5px;margin:0;">Bado hakuna mauzo yaliyorekodiwa.</p>'; }
+  else{
+    html += '<table><thead><tr><th>Tarehe</th><th>Mteja</th><th>Jumla</th><th>Hali</th><th>Deni Lililobaki</th><th></th></tr></thead><tbody>';
+    recent.forEach(s=>{
+      const cust = s.customerName || 'Mteja wa Kawaida';
+      const bd = s.balanceDue!=null ? s.balanceDue : (s.status==='Deni'? s.total : 0);
+      html += '<tr><td class="mono">'+fmtDate(s.date)+'</td><td>'+esc(cust)+'</td><td class="mono">'+money(s.total)+'</td><td><span class="pill '+pillClass(s.status)+'">'+s.status+'</span></td><td class="mono">'+(bd>0? 'TSh '+money(bd) : '-')+'</td>'+
+      '<td><div class="rowactions"><button class="iconsm" data-action="print-receipt" data-id="'+s.id+'" title="Chapisha Risiti">'+ICONS.receipt+'</button><button class="iconsm" data-action="edit-sale" data-id="'+s.id+'">'+ICONS.edit+'</button><button class="iconsm" data-action="delete-sale" data-id="'+s.id+'">'+ICONS.trash+'</button></div></td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  html += '</div>';
+
+  document.getElementById('view').innerHTML = html;
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function pillClass(status){ if(status==='Deni') return 'debt'; if(status==='Sehemu') return 'partial'; return 'paid'; }
+
+/* ================= PRODUCTS ================= */
+let productSearch = '';
+function renderProducts(){
+  const products = DB.read(KEYS.products);
+  const filtered = products.filter(p=> p.name.toLowerCase().includes(productSearch.toLowerCase()) || (p.category||'').toLowerCase().includes(productSearch.toLowerCase()));
+  const cashierMode = isCashierMode();
+
+  let html = '<p class="viewsub">'+(cashierMode? 'Angalia bei ya kuuza na kiasi kilichopo ghalani.' : 'Simamia bidhaa, bei na kiasi kilichopo ghalani.')+'</p>';
+  html += '<div class="toolbar"><input class="search" id="prodSearch" placeholder="Tafuta bidhaa..." value="'+esc(productSearch)+'">'+(cashierMode?'':'<button class="btn" data-action="add-product">'+ICONS.plus+' Ongeza Bidhaa</button>')+'</div>';
+
+  if(filtered.length===0){
+    html += '<div class="card empty">'+ICONS.box_empty+'<div>Hakuna bidhaa iliyopatikana.'+(cashierMode?'':' Bofya "Ongeza Bidhaa" kuanza.')+'</div></div>';
+  } else if(cashierMode){
+    html += '<div class="card" style="padding:0;overflow:auto;"><table><thead><tr><th>Bidhaa</th><th>Aina</th><th>Bei ya Kuuza</th><th>Kiasi</th></tr></thead><tbody>';
+    filtered.forEach(p=>{
+      const low = Number(p.qty) <= Number(p.minStock||5);
+      html += '<tr><td><strong>'+esc(p.name)+'</strong></td><td>'+esc(p.category||'-')+'</td><td class="mono">'+money(p.sellPrice)+'</td>'+
+        '<td class="mono">'+p.qty+' '+esc(p.unit||'')+' '+(low?'<span class="pill low">chache</span>':'')+'</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  } else {
+    html += '<div class="card" style="padding:0;overflow:auto;"><table><thead><tr><th>Bidhaa</th><th>Aina</th><th>Bei ya Kununua</th><th>Bei ya Kuuza</th><th>Kiasi</th><th></th></tr></thead><tbody>';
+    filtered.forEach(p=>{
+      const low = Number(p.qty) <= Number(p.minStock||5);
+      html += '<tr><td><strong>'+esc(p.name)+'</strong></td><td>'+esc(p.category||'-')+'</td><td class="mono">'+money(p.buyPrice)+'</td><td class="mono">'+money(p.sellPrice)+'</td>'+
+        '<td class="mono">'+p.qty+' '+esc(p.unit||'')+' '+(low?'<span class="pill low">chache</span>':'')+'</td>'+
+        '<td><div class="rowactions"><button class="iconsm" data-action="add-stock" data-id="'+p.id+'" title="Ongeza Stock">'+ICONS.restock+'</button><button class="iconsm" data-action="edit-product" data-id="'+p.id+'">'+ICONS.edit+'</button><button class="iconsm" data-action="delete-product" data-id="'+p.id+'">'+ICONS.trash+'</button></div></td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  document.getElementById('view').innerHTML = html;
+  document.getElementById('prodSearch').addEventListener('input', e=>{ productSearch=e.target.value; renderProducts(); });
+  document.getElementById('prodSearch').focus();
+  document.getElementById('prodSearch').selectionStart = document.getElementById('prodSearch').value.length;
+}
+
+function productFormModal(existing){
+  const p = existing || {name:'',category:'',buyPrice:'',sellPrice:'',qty:'',unit:'',minStock:''};
+  const title = existing ? 'Hariri Bidhaa' : 'Ongeza Bidhaa';
+  const html =
+    '<h3>'+title+'<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<form id="productForm">'+
+    '<label>Jina la Bidhaa</label><input required name="name" value="'+esc(p.name)+'" placeholder="mfano: Sukari 1kg">'+
+    '<label>Aina/Kundi (hiari)</label><input name="category" value="'+esc(p.category)+'" placeholder="mfano: Vyakula">'+
+    '<div class="twocol">'+
+    '<div><label>Bei ya Kununua</label><input required type="number" min="0" name="buyPrice" value="'+esc(p.buyPrice)+'"></div>'+
+    '<div><label>Bei ya Kuuza</label><input required type="number" min="0" name="sellPrice" value="'+esc(p.sellPrice)+'"></div>'+
+    '</div>'+
+    '<div class="twocol">'+
+    '<div><label>Kiasi Kilichopo</label><input required type="number" min="0" name="qty" value="'+esc(p.qty)+'"></div>'+
+    '<div><label>Kipimo (hiari)</label><input name="unit" value="'+esc(p.unit)+'" placeholder="mfano: kg, pcs"></div>'+
+    '</div>'+
+    '<label>Onya nikiwa chini ya (hiari)</label><input type="number" min="0" name="minStock" value="'+esc(p.minStock)+'" placeholder="chaguo-msingi: 5">'+
+    '<div class="modal-actions"><button type="button" class="btn secondary block" data-action="close-modal">Ghairi</button><button type="submit" class="btn block">Hifadhi</button></div>'+
+    '</form>';
+  openModal(html);
+  document.getElementById('productForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const products = DB.read(KEYS.products);
+    const rec = {
+      id: existing ? existing.id : uid(),
+      name: fd.get('name').trim(),
+      category: fd.get('category').trim(),
+      buyPrice: parseFloat(fd.get('buyPrice'))||0,
+      sellPrice: parseFloat(fd.get('sellPrice'))||0,
+      qty: parseFloat(fd.get('qty'))||0,
+      unit: fd.get('unit').trim(),
+      minStock: fd.get('minStock')? parseFloat(fd.get('minStock')) : 5
+    };
+    if(existing){
+      const idx = products.findIndex(x=>x.id===existing.id);
+      products[idx]=rec;
+    } else {
+      products.push(rec);
+    }
+    DB.write(KEYS.products, products);
+    closeModal();
+    toast('Bidhaa imehifadhiwa');
+    renderProducts();
+  });
+}
+
+function stockAddModal(product){
+  const html =
+    '<h3>Ongeza Stock<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<p style="font-size:13.5px;color:var(--muted);margin:0 0 4px 0;">'+esc(product.name)+'</p>'+
+    '<div class="stat" style="margin-bottom:4px;"><div class="label">Kiasi Kilichopo Sasa</div><div class="num">'+product.qty+' '+esc(product.unit||'')+'</div></div>'+
+    '<form id="stockForm">'+
+    '<label>Kiasi cha Kuongeza</label><input required type="number" min="1" name="addQty" id="addQtyInput" placeholder="mfano: 20" autofocus>'+
+    '<label>Bei mpya ya Kununua (hiari, ikibadilika)</label><input type="number" min="0" name="newBuyPrice" id="newBuyPriceInput" placeholder="acha wazi kama haijabadilika">'+
+    '<label>Ulilipa Pesa Ngapi kwa Manunuzi Haya? (hiari)</label><input type="number" min="0" name="cashSpent" id="cashSpentInput" placeholder="ikijazwa, itaingia kwenye Matumizi kiotomatiki">'+
+    '<p style="font-size:11.5px;color:var(--muted);margin:4px 0 0 0;">Hii inasaidia mfumo kuonyesha Salio la Fedha sahihi baada ya kutoa pesa ya manunuzi.</p>'+
+    '<div class="modal-actions"><button type="button" class="btn secondary block" data-action="close-modal">Ghairi</button><button type="submit" class="btn block">Ongeza Stock</button></div>'+
+    '</form>';
+  openModal(html);
+  let cashSpentTouched = false;
+  const cashSpentInput = document.getElementById('cashSpentInput');
+  cashSpentInput.addEventListener('input', ()=>{ cashSpentTouched = true; });
+  function suggestCashSpent(){
+    if(cashSpentTouched) return;
+    const q = parseFloat(document.getElementById('addQtyInput').value)||0;
+    const bp = parseFloat(document.getElementById('newBuyPriceInput').value)||Number(product.buyPrice)||0;
+    if(q>0 && bp>0){ cashSpentInput.value = q*bp; }
+  }
+  document.getElementById('addQtyInput').addEventListener('input', suggestCashSpent);
+  document.getElementById('newBuyPriceInput').addEventListener('input', suggestCashSpent);
+  document.getElementById('stockForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const addQty = parseFloat(fd.get('addQty'))||0;
+    if(addQty<=0) return;
+    const newBuyPrice = fd.get('newBuyPrice');
+    const cashSpent = parseFloat(fd.get('cashSpent'))||0;
+    const products = DB.read(KEYS.products);
+    const idx = products.findIndex(x=>x.id===product.id);
+    if(idx===-1) return;
+    products[idx].qty = Number(products[idx].qty||0) + addQty;
+    if(newBuyPrice){ products[idx].buyPrice = parseFloat(newBuyPrice)||products[idx].buyPrice; }
+    DB.write(KEYS.products, products);
+    if(cashSpent>0){
+      const expenses = DB.read(KEYS.expenses);
+      expenses.push({id:uid(), date:todayISO(), category:'Ununuzi wa Bidhaa', amount:cashSpent, note:'Manunuzi ya stock: '+products[idx].name});
+      DB.write(KEYS.expenses, expenses);
+    }
+    closeModal();
+    toast('Stock imeongezwa: +'+addQty+' '+esc(products[idx].unit||''));
+    render();
+  });
+}
+
+/* ================= SALES / POS ================= */
+let posSearch = '';
+function renderSales(){
+  const products = DB.read(KEYS.products);
+  const customers = DB.read(KEYS.customers);
+  const filtered = products.filter(p=> p.name.toLowerCase().includes(posSearch.toLowerCase()) && Number(p.qty)>0);
+
+  let listHtml = '';
+  if(products.length===0){
+    listHtml = '<div class="empty">'+ICONS.box_empty+'<div>Ongeza bidhaa kwenye "Bidhaa" kabla ya kuuza.</div></div>';
+  } else if(filtered.length===0){
+    listHtml = '<div class="empty"><div>Hakuna bidhaa iliyopatikana au zote zimeisha stock.</div></div>';
+  } else {
+    listHtml = filtered.map(p=>
+      '<div class="posrow"><div><div class="pname">'+esc(p.name)+'</div><div class="pmeta">TSh '+money(p.sellPrice)+' &middot; kiasi: '+p.qty+' '+esc(p.unit||'')+'</div></div>'+
+      '<button class="btn sm" data-action="cart-add" data-id="'+p.id+'">'+ICONS.plus+' Ongeza</button></div>'
+    ).join('');
+  }
+
+  const custOptions = '<option value="">Mteja wa Kawaida</option>' + customers.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');
+
+  const cartTotal = cart.reduce((a,i)=>a+i.qty*i.price,0);
+  let cartHtml = '';
+  if(cart.length===0){
+    cartHtml = '<p style="color:var(--muted);font-size:13.5px;">Kikapu ni tupu. Chagua bidhaa upande wa kushoto.</p>';
+  } else {
+    cartHtml = cart.map(i=>
+      '<div class="cartitem"><div><div style="font-weight:600;font-size:13.5px;">'+esc(i.name)+'</div><div class="mono" style="font-size:12px;color:var(--muted);">TSh '+money(i.price)+' x '+i.qty+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:6px;"><button class="qtybtn" data-action="cart-dec" data-id="'+i.productId+'">-</button><span class="mono" style="min-width:18px;text-align:center;">'+i.qty+'</span><button class="qtybtn" data-action="cart-inc" data-id="'+i.productId+'">+</button><button class="iconsm" data-action="cart-remove" data-id="'+i.productId+'">'+ICONS.x+'</button></div></div>'
+    ).join('');
+  }
+
+  let html = '<p class="viewsub">Chagua bidhaa, tengeneza mauzo, na sasisha stock moja kwa moja.</p>';
+  html += '<div class="pos-wrap">';
+  html += '<div class="card"><h3>Bidhaa</h3><div class="toolbar"><input class="search" id="posSearch" placeholder="Tafuta bidhaa..." value="'+esc(posSearch)+'"></div><div class="poslist">'+listHtml+'</div></div>';
+  html += '<div class="card"><h3>Kikapu cha Mauzo</h3><div id="cartList">'+cartHtml+'</div>';
+  if(cart.length>0){
+    html += '<label>Mteja (hiari)</label><select id="custSelect">'+custOptions+'</select>';
+    html += '<label>Aina ya Malipo</label><div class="radiogroup"><label><input type="radio" name="paytype" value="cash" checked><span>Taslimu</span></label><label><input type="radio" name="paytype" value="credit"><span>Deni</span></label><label><input type="radio" name="paytype" value="partial"><span>Sehemu</span></label></div>';
+    html += '<div id="partialWrap" style="display:none;"><label>Kiasi Alicholipa Sasa (Deposit)</label><input type="number" min="0" id="partialAmount" placeholder="mfano: 5000"></div>';
+    html += '<div class="totalrow"><span>Jumla</span><span class="amt">TSh '+money(cartTotal)+'</span></div>';
+    html += '<button class="btn block" style="margin-top:14px;" data-action="confirm-sale">Kamilisha Mauzo</button>';
+  }
+  html += '</div></div>';
+
+  document.getElementById('view').innerHTML = html;
+  const s = document.getElementById('posSearch');
+  s.addEventListener('input', e=>{ posSearch=e.target.value; renderSales(); });
+  s.focus(); s.selectionStart = s.value.length;
+  const partialWrap = document.getElementById('partialWrap');
+  if(partialWrap){
+    document.querySelectorAll('input[name="paytype"]').forEach(r=>{
+      r.addEventListener('change', ()=>{
+        partialWrap.style.display = document.querySelector('input[name="paytype"]:checked').value==='partial' ? 'block' : 'none';
+      });
+    });
+  }
+}
+
+function cartAdd(productId){
+  const products = DB.read(KEYS.products);
+  const p = products.find(x=>x.id===productId);
+  if(!p) return;
+  const existing = cart.find(i=>i.productId===productId);
+  const currentQty = existing ? existing.qty : 0;
+  if(currentQty+1 > Number(p.qty)){ toast('Stock haitoshi'); return; }
+  if(existing){ existing.qty += 1; }
+  else{ cart.push({productId:p.id, name:p.name, price:p.sellPrice, qty:1, stock:p.qty}); }
+  renderSales();
+}
+function cartChange(productId, delta){
+  const item = cart.find(i=>i.productId===productId);
+  if(!item) return;
+  const products = DB.read(KEYS.products);
+  const p = products.find(x=>x.id===productId);
+  const newQty = item.qty + delta;
+  if(newQty<=0){ cart = cart.filter(i=>i.productId!==productId); }
+  else if(p && newQty > Number(p.qty)){ toast('Stock haitoshi'); return; }
+  else{ item.qty = newQty; }
+  renderSales();
+}
+function confirmSale(){
+  if(cart.length===0) return;
+  const custSelect = document.getElementById('custSelect');
+  const custId = custSelect ? custSelect.value : '';
+  const payType = document.querySelector('input[name="paytype"]:checked').value;
+  const customers = DB.read(KEYS.customers);
+  const cust = customers.find(c=>c.id===custId);
+  const total = cart.reduce((a,i)=>a+i.qty*i.price,0);
+
+  let amountPaid = total;
+  let status = 'Taslimu';
+  if(payType==='credit'){
+    if(!cust){ toast('Chagua mteja kwa mauzo ya deni'); return; }
+    amountPaid = 0;
+    status = 'Deni';
+  } else if(payType==='partial'){
+    if(!cust){ toast('Chagua mteja kwa malipo ya sehemu'); return; }
+    const partialInput = document.getElementById('partialAmount');
+    amountPaid = parseFloat(partialInput ? partialInput.value : 0) || 0;
+    if(amountPaid<=0){ toast('Weka kiasi alicholipa'); return; }
+    if(amountPaid>=total){ amountPaid = total; status = 'Taslimu'; }
+    else{ status = 'Sehemu'; }
+  }
+
+  const products = DB.read(KEYS.products);
+  cart.forEach(item=>{
+    const p = products.find(x=>x.id===item.productId);
+    if(p){ p.qty = Number(p.qty) - item.qty; }
+  });
+  DB.write(KEYS.products, products);
+
+  const balanceDue = total - amountPaid;
+  const sales = DB.read(KEYS.sales);
+  sales.push({
+    id: uid(),
+    date: todayISO(),
+    items: cart.map(i=>({productId:i.productId,name:i.name,qty:i.qty,price:i.price})),
+    total: total,
+    amountPaid: amountPaid,
+    balanceDue: balanceDue,
+    customerId: cust ? cust.id : '',
+    customerName: cust ? cust.name : '',
+    status: status
+  });
+  DB.write(KEYS.sales, sales);
+
+  if(balanceDue>0 && cust){
+    const idx = customers.findIndex(c=>c.id===cust.id);
+    customers[idx].balance = Number(customers[idx].balance||0) + balanceDue;
+    DB.write(KEYS.customers, customers);
+  }
+
+  cart = [];
+  toast('Mauzo yamehifadhiwa — TSh '+money(total)+(balanceDue>0?' (Deni: TSh '+money(balanceDue)+')':''));
+  renderSales();
+}
+
+function deleteSale(id){
+  const sales = DB.read(KEYS.sales);
+  const idx = sales.findIndex(x=>x.id===id);
+  if(idx===-1) return;
+  const sale = sales[idx];
+  const products = DB.read(KEYS.products);
+  sale.items.forEach(it=>{
+    const p = products.find(x=>x.id===it.productId);
+    if(p){ p.qty = Number(p.qty) + Number(it.qty); }
+  });
+  DB.write(KEYS.products, products);
+
+  const balanceDue = sale.balanceDue!=null ? sale.balanceDue : (sale.status==='Deni'? sale.total : 0);
+  if(balanceDue>0 && sale.customerId){
+    const customers = DB.read(KEYS.customers);
+    const cidx = customers.findIndex(c=>c.id===sale.customerId);
+    if(cidx!==-1){
+      customers[cidx].balance = Math.max(0, Number(customers[cidx].balance||0) - balanceDue);
+      DB.write(KEYS.customers, customers);
+    }
+  }
+  sales.splice(idx,1);
+  DB.write(KEYS.sales, sales);
+  toast('Mauzo yamefutwa na stock imerejeshwa');
+  render();
+}
+
+function editSaleModal(sale){
+  const itemsHtml = sale.items.map((it,idx)=>
+    '<div class="cartitem"><div><div style="font-weight:600;font-size:13.5px;">'+esc(it.name)+'</div><div class="mono" style="font-size:12px;color:var(--muted);">Bei: TSh '+money(it.price)+' &middot; iliuzwa: '+it.qty+'</div></div>'+
+    '<input type="number" min="0" max="'+it.qty+'" value="'+it.qty+'" data-idx="'+idx+'" class="editQtyInput" style="width:70px;">'+
+    '</div>'
+  ).join('');
+  const html =
+    '<h3>Hariri Mauzo<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<p style="font-size:12.5px;color:var(--muted);margin:0 0 10px 0;">Punguza idadi kama kulikuwa na kosa la kuandika. Haiwezekani kuongeza zaidi ya ulivyouza awali.</p>'+
+    '<div id="editItemsWrap">'+itemsHtml+'</div>'+
+    '<div class="modal-actions"><button type="button" class="btn secondary block" data-action="close-modal">Ghairi</button><button type="button" class="btn block" id="saveEditSaleBtn">Hifadhi Marekebisho</button></div>';
+  openModal(html);
+  document.getElementById('saveEditSaleBtn').addEventListener('click', ()=>{
+    const newItems = [];
+    const removedQty = {};
+    sale.items.forEach((it,idx)=>{
+      const inputEl = document.querySelector('.editQtyInput[data-idx="'+idx+'"]');
+      let newQty = parseFloat(inputEl.value)||0;
+      if(newQty>it.qty) newQty = it.qty;
+      if(newQty<0) newQty = 0;
+      const diff = it.qty - newQty;
+      if(diff>0){ removedQty[it.productId] = (removedQty[it.productId]||0) + diff; }
+      if(newQty>0){ newItems.push({productId:it.productId, name:it.name, qty:newQty, price:it.price}); }
+    });
+
+    if(newItems.length===0){
+      if(!confirm('Umepunguza bidhaa zote — hii itafuta mauzo haya kabisa. Endelea?')) return;
+      closeModal();
+      deleteSale(sale.id);
+      return;
+    }
+
+    const products = DB.read(KEYS.products);
+    Object.keys(removedQty).forEach(pid=>{
+      const p = products.find(x=>x.id===pid);
+      if(p){ p.qty = Number(p.qty) + removedQty[pid]; }
+    });
+    DB.write(KEYS.products, products);
+
+    const newTotal = newItems.reduce((a,i)=>a+i.qty*i.price,0);
+    const oldBalanceDue = sale.balanceDue!=null ? sale.balanceDue : (sale.status==='Deni'? sale.total : 0);
+    const oldAmountPaid = sale.amountPaid!=null ? sale.amountPaid : (sale.status==='Deni'?0:sale.total);
+
+    let newAmountPaid = Math.min(oldAmountPaid, newTotal);
+    let newBalanceDue = Math.max(0, newTotal - newAmountPaid);
+    let newStatus;
+    if(newBalanceDue<=0){ newStatus = 'Taslimu'; newAmountPaid = newTotal; }
+    else if(newAmountPaid>0){ newStatus = 'Sehemu'; }
+    else { newStatus = 'Deni'; }
+
+    if(sale.customerId){
+      const customers = DB.read(KEYS.customers);
+      const cidx = customers.findIndex(c=>c.id===sale.customerId);
+      if(cidx!==-1){
+        const delta = newBalanceDue - oldBalanceDue;
+        customers[cidx].balance = Math.max(0, Number(customers[cidx].balance||0) + delta);
+        DB.write(KEYS.customers, customers);
+      }
+    }
+
+    const sales = DB.read(KEYS.sales);
+    const sidx = sales.findIndex(x=>x.id===sale.id);
+    if(sidx!==-1){
+      sales[sidx] = Object.assign({}, sale, {
+        items: newItems, total: newTotal, amountPaid: newAmountPaid, balanceDue: newBalanceDue, status: newStatus
+      });
+      DB.write(KEYS.sales, sales);
+    }
+    closeModal();
+    toast('Mauzo yamerekebishwa');
+    render();
+  });
+}
+
+/* ================= ODA (ORDERS) ================= */
+function renderOrders(){
+  const orders = DB.read(KEYS.orders).slice().reverse();
+  const filtered = orders.filter(o=> orderFilter==='all' ? true : (orderFilter==='pending'? o.status==='Inasubiri' : o.status==='Imekamilika'));
+
+  let html = '<p class="viewsub">Weka oda za wateja wanaotaka kuja kuchukua au kulipia baadaye — stock haipunguzwi mpaka oda ilipwe.</p>';
+  html += '<div class="toolbar"><button class="btn" data-action="add-order">'+ICONS.plus+' Weka Oda Mpya</button></div>';
+  html += '<div class="filterchips">'+
+    '<button class="chip'+(orderFilter==='pending'?' active':'')+'" data-action="order-filter" data-filter="pending">Zinazosubiri</button>'+
+    '<button class="chip'+(orderFilter==='completed'?' active':'')+'" data-action="order-filter" data-filter="completed">Zilizouzwa</button>'+
+    '<button class="chip'+(orderFilter==='all'?' active':'')+'" data-action="order-filter" data-filter="all">Zote</button>'+
+    '</div>';
+
+  if(filtered.length===0){
+    html += '<div class="card empty">'+ICONS.box_empty+'<div>Hakuna oda kwenye kundi hili.</div></div>';
+  } else {
+    html += filtered.map(o=>{
+      const itemsSummary = o.items.map(it=>it.name+' x'+it.qty).join(', ');
+      const pillCls = o.status==='Inasubiri' ? 'low' : 'paid';
+      let actions = '<div class="rowactions" style="margin-top:10px;flex-wrap:wrap;">';
+      if(o.status==='Inasubiri'){
+        actions += '<button class="btn sm" data-action="complete-order" data-id="'+o.id+'">Kamilisha na Lipa</button>'+
+          '<button class="btn sm secondary" data-action="print-invoice" data-id="'+o.id+'">'+ICONS.receipt+' Invoice</button>'+
+          '<button class="btn sm danger" data-action="cancel-order" data-id="'+o.id+'">Ghairi</button>';
+      } else {
+        actions += '<button class="btn sm secondary" data-action="print-invoice" data-id="'+o.id+'">'+ICONS.receipt+' Invoice</button>';
+        if(o.saleId){ actions += '<button class="btn sm secondary" data-action="print-receipt-order" data-id="'+o.saleId+'">'+ICONS.receipt+' Risiti ya Mauzo</button>'; }
+      }
+      actions += '</div>';
+      return '<div class="card">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'+
+        '<div><strong>'+esc(o.customerName)+'</strong><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+fmtDate(o.date)+(o.customerPhone?' &middot; '+esc(o.customerPhone):'')+'</div></div>'+
+        '<span class="pill '+pillCls+'">'+o.status+'</span>'+
+        '</div>'+
+        '<div style="font-size:13px;color:var(--ink-soft);margin-top:8px;">'+esc(itemsSummary)+'</div>'+
+        '<div class="mono" style="font-weight:700;margin-top:6px;color:var(--gold);">TSh '+money(o.total)+'</div>'+
+        actions+
+        '</div>';
+    }).join('');
+  }
+  document.getElementById('view').innerHTML = html;
+}
+
+function openOrderModal(){
+  orderModalCart = [];
+  orderModalCustName = '';
+  orderModalCustPhone = '';
+  orderModalProductSearch = '';
+  renderOrderModalBody();
+}
+
+function renderOrderModalBody(){
+  const products = DB.read(KEYS.products);
+  const filtered = products.filter(p=>p.name.toLowerCase().includes(orderModalProductSearch.toLowerCase()));
+  const listHtml = filtered.length? filtered.map(p=>
+    '<div class="posrow"><div><div class="pname">'+esc(p.name)+'</div><div class="pmeta">TSh '+money(p.sellPrice)+' &middot; ghalani: '+p.qty+' '+esc(p.unit||'')+'</div></div>'+
+    '<button class="btn sm" type="button" data-action="order-cart-add" data-id="'+p.id+'">'+ICONS.plus+' Ongeza</button></div>'
+  ).join('') : '<p style="color:var(--muted);font-size:13px;">Hakuna bidhaa iliyopatikana.</p>';
+
+  const cartHtml = orderModalCart.length? orderModalCart.map(i=>
+    '<div class="cartitem"><div><div style="font-weight:600;font-size:13.5px;">'+esc(i.name)+'</div><div class="mono" style="font-size:12px;color:var(--muted);">TSh '+money(i.price)+' x '+i.qty+'</div></div>'+
+    '<div style="display:flex;align-items:center;gap:6px;"><button class="qtybtn" type="button" data-action="order-cart-dec" data-id="'+i.productId+'">-</button><span class="mono" style="min-width:18px;text-align:center;">'+i.qty+'</span><button class="qtybtn" type="button" data-action="order-cart-inc" data-id="'+i.productId+'">+</button><button class="iconsm" type="button" data-action="order-cart-remove" data-id="'+i.productId+'">'+ICONS.x+'</button></div></div>'
+  ).join('') : '<p style="color:var(--muted);font-size:13px;">Bado hujachagua bidhaa.</p>';
+
+  const total = orderModalCart.reduce((a,i)=>a+i.qty*i.price,0);
+
+  const html =
+    '<h3>Weka Oda Mpya<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<p style="font-size:12px;color:var(--muted);margin:0 0 8px 0;">Oda haitapunguza stock — stock itapungua tu baada ya kukamilisha na kulipia.</p>'+
+    '<label>Jina la Mteja</label><input id="orderCustName" placeholder="Jina la mteja anayeweka oda" value="'+esc(orderModalCustName)+'">'+
+    '<label>Namba ya Simu (hiari)</label><input id="orderCustPhone" placeholder="mfano: 07xx xxx xxx" value="'+esc(orderModalCustPhone)+'">'+
+    '<label>Tafuta Bidhaa</label><input id="orderProdSearch" placeholder="Andika jina la bidhaa..." value="'+esc(orderModalProductSearch)+'">'+
+    '<div style="max-height:170px;overflow:auto;margin:8px 0;">'+listHtml+'</div>'+
+    '<label>Bidhaa Zilizochaguliwa</label><div id="orderCartList">'+cartHtml+'</div>'+
+    '<div class="totalrow"><span>Jumla ya Oda</span><span class="amt">TSh '+money(total)+'</span></div>'+
+    '<div class="modal-actions"><button type="button" class="btn secondary block" data-action="close-modal">Ghairi</button><button type="button" class="btn block" id="saveOrderBtn">Hifadhi Oda</button></div>';
+  openModal(html);
+
+  document.getElementById('orderCustName').addEventListener('input', e=>{ orderModalCustName = e.target.value; });
+  document.getElementById('orderCustPhone').addEventListener('input', e=>{ orderModalCustPhone = e.target.value; });
+  const searchInput = document.getElementById('orderProdSearch');
+  searchInput.addEventListener('input', e=>{ orderModalProductSearch = e.target.value; renderOrderModalBody(); });
+  searchInput.focus(); searchInput.selectionStart = searchInput.value.length;
+
+  document.getElementById('saveOrderBtn').addEventListener('click', ()=>{
+    const name = orderModalCustName.trim();
+    if(!name){ toast('Weka jina la mteja'); return; }
+    if(orderModalCart.length===0){ toast('Chagua angalau bidhaa moja'); return; }
+    const orders = DB.read(KEYS.orders);
+    orders.push({
+      id: uid(),
+      date: todayISO(),
+      customerName: name,
+      customerPhone: orderModalCustPhone.trim(),
+      items: orderModalCart.map(i=>({productId:i.productId,name:i.name,qty:i.qty,price:i.price})),
+      total: orderModalCart.reduce((a,i)=>a+i.qty*i.price,0),
+      status: 'Inasubiri'
+    });
+    DB.write(KEYS.orders, orders);
+    closeModal();
+    toast('Oda imehifadhiwa');
+    navigate('orders');
+  });
+}
+
+function orderCartAdd(productId){
+  const products = DB.read(KEYS.products);
+  const p = products.find(x=>x.id===productId);
+  if(!p) return;
+  const existing = orderModalCart.find(i=>i.productId===productId);
+  if(existing){ existing.qty += 1; }
+  else{ orderModalCart.push({productId:p.id, name:p.name, price:p.sellPrice, qty:1}); }
+  renderOrderModalBody();
+}
+function orderCartChange(productId, delta){
+  const item = orderModalCart.find(i=>i.productId===productId);
+  if(!item) return;
+  const newQty = item.qty + delta;
+  if(newQty<=0){ orderModalCart = orderModalCart.filter(i=>i.productId!==productId); }
+  else{ item.qty = newQty; }
+  renderOrderModalBody();
+}
+
+function completeOrderModal(order){
+  const customers = DB.read(KEYS.customers);
+  const custOptions = '<option value="">Mteja wa Kawaida (Taslimu tu)</option>' + customers.map(c=>'<option value="'+c.id+'"'+(c.name===order.customerName?' selected':'')+'>'+esc(c.name)+'</option>').join('');
+  const html =
+    '<h3>Kamilisha Oda — '+esc(order.customerName)+'<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<div class="card" style="padding:10px;margin-bottom:10px;">'+
+      order.items.map(it=>'<div style="display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;"><span>'+esc(it.name)+' x'+it.qty+'</span><span class="mono">'+money(it.qty*it.price)+'</span></div>').join('')+
+    '</div>'+
+    '<label>Mteja (lazima kwa Deni/Sehemu)</label><select id="completeCustSelect">'+custOptions+'</select>'+
+    '<label>Aina ya Malipo</label><div class="radiogroup"><label><input type="radio" name="completePaytype" value="cash" checked><span>Taslimu</span></label><label><input type="radio" name="completePaytype" value="credit"><span>Deni</span></label><label><input type="radio" name="completePaytype" value="partial"><span>Sehemu</span></label></div>'+
+    '<div id="completePartialWrap" style="display:none;"><label>Kiasi Alicholipa Sasa</label><input type="number" min="0" id="completePartialAmount"></div>'+
+    '<div class="totalrow"><span>Jumla</span><span class="amt">TSh '+money(order.total)+'</span></div>'+
+    '<div class="modal-actions"><button type="button" class="btn secondary block" data-action="close-modal">Ghairi</button><button type="button" class="btn block" id="finalizeOrderBtn">Kamilisha Mauzo</button></div>';
+  openModal(html);
+  const pw = document.getElementById('completePartialWrap');
+  document.querySelectorAll('input[name="completePaytype"]').forEach(r=>r.addEventListener('change', ()=>{
+    pw.style.display = document.querySelector('input[name="completePaytype"]:checked').value==='partial' ? 'block' : 'none';
+  }));
+
+  document.getElementById('finalizeOrderBtn').addEventListener('click', ()=>{
+    const custId = document.getElementById('completeCustSelect').value;
+    const customers = DB.read(KEYS.customers);
+    const cust = customers.find(c=>c.id===custId);
+    const payType = document.querySelector('input[name="completePaytype"]:checked').value;
+    const total = order.total;
+    let amountPaid = total, status = 'Taslimu';
+    if(payType==='credit'){
+      if(!cust){ toast('Chagua mteja kwa deni'); return; }
+      amountPaid = 0; status = 'Deni';
+    } else if(payType==='partial'){
+      if(!cust){ toast('Chagua mteja kwa sehemu'); return; }
+      const amtInput = document.getElementById('completePartialAmount');
+      amountPaid = parseFloat(amtInput?amtInput.value:0)||0;
+      if(amountPaid<=0){ toast('Weka kiasi alicholipa'); return; }
+      if(amountPaid>=total){ amountPaid=total; status='Taslimu'; } else { status='Sehemu'; }
+    }
+    const products = DB.read(KEYS.products);
+    for(const it of order.items){
+      const p = products.find(x=>x.id===it.productId);
+      if(!p || Number(p.qty) < it.qty){ toast('Stock haitoshi kwa '+(p?p.name:it.name)); return; }
+    }
+    order.items.forEach(it=>{
+      const p = products.find(x=>x.id===it.productId);
+      if(p){ p.qty = Number(p.qty) - it.qty; }
+    });
+    DB.write(KEYS.products, products);
+
+    const balanceDue = total - amountPaid;
+    const sales = DB.read(KEYS.sales);
+    const saleId = uid();
+    sales.push({
+      id: saleId, date: todayISO(),
+      items: order.items.map(i=>({productId:i.productId,name:i.name,qty:i.qty,price:i.price})),
+      total: total, amountPaid: amountPaid, balanceDue: balanceDue,
+      customerId: cust?cust.id:'', customerName: cust?cust.name:order.customerName,
+      status: status, fromOrderId: order.id
+    });
+    DB.write(KEYS.sales, sales);
+
+    if(balanceDue>0 && cust){
+      const cidx = customers.findIndex(c=>c.id===cust.id);
+      customers[cidx].balance = Number(customers[cidx].balance||0) + balanceDue;
+      DB.write(KEYS.customers, customers);
+    }
+
+    const orders = DB.read(KEYS.orders);
+    const oidx = orders.findIndex(x=>x.id===order.id);
+    if(oidx!==-1){ orders[oidx].status='Imekamilika'; orders[oidx].saleId=saleId; DB.write(KEYS.orders, orders); }
+
+    closeModal();
+    toast('Oda imekamilika na kuuzwa — TSh '+money(total));
+    renderOrders();
+  });
+}
+
+function cancelOrder(id){
+  const orders = DB.read(KEYS.orders).filter(o=>o.id!==id);
+  DB.write(KEYS.orders, orders);
+  toast('Oda imeghairiwa');
+  renderOrders();
+}
+
+/* ================= RISITI / INVOICE (PRINT) ================= */
+const RECEIPT_STYLE = 'body{font-family:ui-monospace,Menlo,Consolas,monospace;padding:16px;max-width:340px;margin:auto;color:#1F3A2E;}h2{text-align:center;margin:0;}.muted{color:#666;font-size:12px;text-align:center;margin-bottom:10px;}table{width:100%;border-collapse:collapse;font-size:13px;}td,th{padding:4px 2px;border-bottom:1px dashed #999;text-align:left;}.totals td{border:none;font-weight:bold;}hr{border:none;border-top:1px dashed #999;}';
+
+function printReceipt(sale){
+  const w = window.open('', '_blank');
+  if(!w){ toast('Ruhusu pop-up kuchapisha risiti'); return; }
+  const rows = sale.items.map(it=>'<tr><td>'+esc(it.name)+'</td><td style="text-align:center;">'+it.qty+'</td><td style="text-align:right;">'+money(it.price)+'</td><td style="text-align:right;">'+money(it.qty*it.price)+'</td></tr>').join('');
+  const bd = sale.balanceDue!=null ? sale.balanceDue : (sale.status==='Deni'? sale.total : 0);
+  const paid = sale.amountPaid!=null ? sale.amountPaid : (sale.status==='Deni'?0:sale.total);
+  w.document.write('<html><head><title>Risiti</title><style>'+RECEIPT_STYLE+'</style></head><body>'+
+    '<h2>SwaRa</h2><div class="muted">Risiti ya Mauzo &middot; '+fmtDate(sale.date)+'</div>'+
+    '<div>Mteja: '+esc(sale.customerName||'Mteja wa Kawaida')+'</div><hr>'+
+    '<table><thead><tr><th>Bidhaa</th><th>Idadi</th><th>Bei</th><th>Jumla</th></tr></thead><tbody>'+rows+'</tbody>'+
+    '<tbody class="totals"><tr><td colspan="3">JUMLA</td><td style="text-align:right;">'+money(sale.total)+'</td></tr>'+
+    '<tr><td colspan="3">Alilipa</td><td style="text-align:right;">'+money(paid)+'</td></tr>'+
+    (bd>0? '<tr><td colspan="3">Deni</td><td style="text-align:right;">'+money(bd)+'</td></tr>' : '')+
+    '</tbody></table><hr><div class="muted">Asante kwa kununua!</div>'+
+    '<script>window.onload=function(){window.print();}<\/script></body></html>');
+  w.document.close();
+}
+
+function printInvoice(order){
+  const w = window.open('', '_blank');
+  if(!w){ toast('Ruhusu pop-up kuchapisha invoice'); return; }
+  const rows = order.items.map(it=>'<tr><td>'+esc(it.name)+'</td><td style="text-align:center;">'+it.qty+'</td><td style="text-align:right;">'+money(it.price)+'</td><td style="text-align:right;">'+money(it.qty*it.price)+'</td></tr>').join('');
+  w.document.write('<html><head><title>Invoice</title><style>'+RECEIPT_STYLE+'</style></head><body>'+
+    '<h2>SwaRa</h2><div class="muted">Invoice ya Oda &middot; '+fmtDate(order.date)+'</div>'+
+    '<div>Mteja: '+esc(order.customerName)+(order.customerPhone?' ('+esc(order.customerPhone)+')':'')+'</div>'+
+    '<div>Hali: '+order.status+'</div><hr>'+
+    '<table><thead><tr><th>Bidhaa</th><th>Idadi</th><th>Bei</th><th>Jumla</th></tr></thead><tbody>'+rows+'</tbody>'+
+    '<tbody class="totals"><tr><td colspan="3">JUMLA</td><td style="text-align:right;">'+money(order.total)+'</td></tr></tbody></table><hr>'+
+    '<div class="muted">Asante!</div>'+
+    '<script>window.onload=function(){window.print();}<\/script></body></html>');
+  w.document.close();
+}
+
+/* ================= CUSTOMERS ================= */
+let custSearch = '';
+function renderCustomers(){
+  const customers = DB.read(KEYS.customers);
+  const filtered = customers.filter(c=>c.name.toLowerCase().includes(custSearch.toLowerCase()));
+
+  let html = '<p class="viewsub">Simamia wateja na fuatilia madeni yao.</p>';
+  html += '<div class="toolbar"><input class="search" id="custSearchInput" placeholder="Tafuta mteja..." value="'+esc(custSearch)+'"><button class="btn" data-action="add-customer">'+ICONS.plus+' Ongeza Mteja</button></div>';
+
+  if(filtered.length===0){
+    html += '<div class="card empty"><div>Bado hakuna wateja waliosajiliwa.</div></div>';
+  } else {
+    html += '<div class="card" style="padding:0;overflow:auto;"><table><thead><tr><th>Jina</th><th>Simu</th><th>Deni</th><th></th></tr></thead><tbody>';
+    filtered.forEach(c=>{
+      const bal = Number(c.balance||0);
+      html += '<tr><td><a href="#" data-action="view-customer" data-id="'+c.id+'" style="color:var(--ink);font-weight:600;text-decoration:none;">'+esc(c.name)+'</a></td><td class="mono">'+esc(c.phone||'-')+'</td>'+
+      '<td class="mono">'+(bal>0? '<span class="pill debt">TSh '+money(bal)+'</span>' : '<span class="pill paid">Hakuna</span>')+'</td>'+
+      '<td><div class="rowactions"><button class="iconsm" data-action="edit-customer" data-id="'+c.id+'">'+ICONS.edit+'</button><button class="iconsm" data-action="delete-customer" data-id="'+c.id+'">'+ICONS.trash+'</button></div></td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  document.getElementById('view').innerHTML = html;
+  document.getElementById('custSearchInput').addEventListener('input', e=>{ custSearch=e.target.value; renderCustomers(); });
+}
+
+function customerFormModal(existing){
+  const c = existing || {name:'',phone:'',address:''};
+  const title = existing ? 'Hariri Mteja' : 'Ongeza Mteja';
+  const html =
+    '<h3>'+title+'<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<form id="custForm">'+
+    '<label>Jina</label><input required name="name" value="'+esc(c.name)+'">'+
+    '<label>Namba ya Simu (hiari)</label><input name="phone" value="'+esc(c.phone)+'">'+
+    '<label>Anuani (hiari)</label><input name="address" value="'+esc(c.address)+'">'+
+    '<div class="modal-actions"><button type="button" class="btn secondary block" data-action="close-modal">Ghairi</button><button type="submit" class="btn block">Hifadhi</button></div>'+
+    '</form>';
+  openModal(html);
+  document.getElementById('custForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const customers = DB.read(KEYS.customers);
+    if(existing){
+      const idx = customers.findIndex(x=>x.id===existing.id);
+      customers[idx] = Object.assign({}, existing, {name:fd.get('name').trim(), phone:fd.get('phone').trim(), address:fd.get('address').trim()});
+    } else {
+      customers.push({id:uid(), name:fd.get('name').trim(), phone:fd.get('phone').trim(), address:fd.get('address').trim(), balance:0});
+    }
+    DB.write(KEYS.customers, customers);
+    closeModal();
+    toast('Mteja amehifadhiwa');
+    renderCustomers();
+  });
+}
+
+function customerDetailModal(customer){
+  const sales = DB.read(KEYS.sales).filter(s=>s.customerId===customer.id).reverse();
+  const rows = sales.map(s=>
+    '<tr><td class="mono">'+fmtDate(s.date)+'</td><td class="mono">'+money(s.total)+'</td><td class="mono">'+money(s.amountPaid!=null?s.amountPaid:(s.status==='Deni'?0:s.total))+'</td><td><span class="pill '+pillClass(s.status)+'">'+s.status+'</span></td></tr>'
+  ).join('');
+  const html =
+    '<h3>'+esc(customer.name)+'<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<div class="stat brick" style="margin-bottom:14px;"><div class="label">Deni la sasa</div><div class="num">TSh '+money(customer.balance||0)+'</div></div>'+
+    (Number(customer.balance||0)>0 ?
+      '<form id="payForm"><label>Rekodi Malipo ya Deni</label><input type="number" min="0" max="'+(customer.balance||0)+'" name="amount" placeholder="Kiasi kilicholipwa" required>'+
+      '<button type="submit" class="btn block" style="margin-top:10px;">Hifadhi Malipo</button></form>' : '')+
+    '<h3 style="margin-top:18px;">Historia ya Ununuzi</h3>'+
+    (sales.length? '<table><thead><tr><th>Tarehe</th><th>Jumla</th><th>Alilipa</th><th>Hali</th></tr></thead><tbody>'+rows+'</tbody></table>' : '<p style="color:var(--muted);font-size:13.5px;">Bado hajanunua chochote.</p>');
+  openModal(html);
+  const payForm = document.getElementById('payForm');
+  if(payForm){
+    payForm.addEventListener('submit', e=>{
+      e.preventDefault();
+      const amt = parseFloat(new FormData(e.target).get('amount'))||0;
+      if(amt<=0) return;
+      const customers = DB.read(KEYS.customers);
+      const idx = customers.findIndex(x=>x.id===customer.id);
+      customers[idx].balance = Math.max(0, Number(customers[idx].balance||0) - amt);
+      DB.write(KEYS.customers, customers);
+      const payments = DB.read(KEYS.debtPayments);
+      payments.push({id:uid(), date:todayISO(), customerId:customer.id, customerName:customer.name, amount:amt});
+      DB.write(KEYS.debtPayments, payments);
+      closeModal();
+      toast('Malipo yamehifadhiwa');
+      renderCustomers();
+    });
+  }
+}
+
+/* ================= EXPENSES ================= */
+function renderExpenses(){
+  const expenses = DB.read(KEYS.expenses).slice().reverse();
+  const total = expenses.reduce((a,e)=>a+Number(e.amount),0);
+  let html = '<p class="viewsub">Rekodi gharama za kila siku za duka lako.</p>';
+  html += '<div class="grid"><div class="stat brick"><div class="label">Jumla ya Matumizi Yote</div><div class="num">'+money(total)+'</div></div></div>';
+  html += '<div class="toolbar"><div></div><button class="btn" data-action="add-expense">'+ICONS.plus+' Ongeza Tumizi</button></div>';
+  if(expenses.length===0){
+    html += '<div class="card empty"><div>Bado hakuna matumizi yaliyorekodiwa.</div></div>';
+  } else {
+    html += '<div class="card" style="padding:0;overflow:auto;"><table><thead><tr><th>Tarehe</th><th>Aina</th><th>Maelezo</th><th>Kiasi</th><th></th></tr></thead><tbody>';
+    expenses.forEach(e=>{
+      html += '<tr><td class="mono">'+fmtDate(e.date)+'</td><td>'+esc(e.category)+'</td><td>'+esc(e.note||'-')+'</td><td class="mono">'+money(e.amount)+'</td>'+
+      '<td><div class="rowactions"><button class="iconsm" data-action="delete-expense" data-id="'+e.id+'">'+ICONS.trash+'</button></div></td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  document.getElementById('view').innerHTML = html;
+}
+
+function expenseFormModal(){
+  const cats = ['Kodi','Umeme/Maji','Usafiri','Mishahara','Ununuzi wa Bidhaa','Nyingine'];
+  const html =
+    '<h3>Ongeza Tumizi<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<form id="expForm">'+
+    '<label>Tarehe</label><input required type="date" name="date" value="'+todayISO()+'">'+
+    '<label>Aina</label><select name="category">'+cats.map(c=>'<option>'+c+'</option>').join('')+'</select>'+
+    '<label>Kiasi</label><input required type="number" min="0" name="amount">'+
+    '<label>Maelezo (hiari)</label><textarea name="note" rows="2"></textarea>'+
+    '<div class="modal-actions"><button type="button" class="btn secondary block" data-action="close-modal">Ghairi</button><button type="submit" class="btn block">Hifadhi</button></div>'+
+    '</form>';
+  openModal(html);
+  document.getElementById('expForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const expenses = DB.read(KEYS.expenses);
+    expenses.push({id:uid(), date:fd.get('date'), category:fd.get('category'), amount:parseFloat(fd.get('amount'))||0, note:fd.get('note').trim()});
+    DB.write(KEYS.expenses, expenses);
+    closeModal();
+    toast('Tumizi limehifadhiwa');
+    renderExpenses();
+  });
+}
+
+/* ================= REPORTS ================= */
+let reportRange = 'today';
+let reportCustomDate = todayISO();
+function rangeDates(range){
+  const now = new Date();
+  let start;
+  if(range==='today'){ start = new Date(now.getFullYear(),now.getMonth(),now.getDate()); }
+  else if(range==='week'){ start = new Date(now); start.setDate(now.getDate()-6); }
+  else if(range==='month'){ start = new Date(now.getFullYear(),now.getMonth(),1); }
+  else{ start = new Date(2000,0,1); }
+  return localISODate(start);
+}
+function renderReports(){
+  const products = DB.read(KEYS.products);
+  const customers = DB.read(KEYS.customers);
+  let sales, expenses, debtPayments;
+  if(reportRange==='day'){
+    sales = DB.read(KEYS.sales).filter(s=>s.date===reportCustomDate);
+    expenses = DB.read(KEYS.expenses).filter(e=>e.date===reportCustomDate);
+    debtPayments = DB.read(KEYS.debtPayments).filter(p=>p.date===reportCustomDate);
+  } else {
+    const start = rangeDates(reportRange);
+    sales = DB.read(KEYS.sales).filter(s=>s.date>=start);
+    expenses = DB.read(KEYS.expenses).filter(e=>e.date>=start);
+    debtPayments = DB.read(KEYS.debtPayments).filter(p=>p.date>=start);
+  }
+
+  const revenue = sales.reduce((a,s)=>a+s.total,0);
+  let cogs = 0;
+  const productTotals = {};
+  sales.forEach(s=>{
+    s.items.forEach(it=>{
+      const p = products.find(x=>x.id===it.productId);
+      if(p){ cogs += it.qty * Number(p.buyPrice); }
+      productTotals[it.name] = (productTotals[it.name]||0) + it.qty;
+    });
+  });
+  const expenseTotal = expenses.reduce((a,e)=>a+Number(e.amount),0);
+  const profit = revenue - cogs - expenseTotal;
+  const totalDebt = customers.reduce((a,c)=>a+Number(c.balance||0),0);
+  const cashIn = sales.reduce((a,s)=>a+(s.amountPaid!=null?s.amountPaid:(s.status==='Deni'?0:s.total)),0) + debtPayments.reduce((a,p)=>a+Number(p.amount),0);
+  const cashOut = expenseTotal;
+  const cashFlow = cashIn - cashOut;
+
+  const topProducts = Object.entries(productTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  const chips = [
+    {id:'today',label:'Leo'},{id:'week',label:'Wiki hii'},{id:'month',label:'Mwezi huu'},{id:'all',label:'Yote'},{id:'day',label:'Tarehe Maalum'}
+  ];
+
+  let html = '<p class="viewsub">Muhtasari wa mauzo, gharama na faida ya duka lako.</p>';
+  html += '<div class="filterchips">'+chips.map(c=>'<button class="chip'+(reportRange===c.id?' active':'')+'" data-action="report-range" data-range="'+c.id+'">'+c.label+'</button>').join('')+'</div>';
+  if(reportRange==='day'){
+    html += '<div class="toolbar"><input type="date" id="reportDateInput" value="'+reportCustomDate+'" max="'+todayISO()+'"></div>';
+  }
+
+  html += '<div class="grid">';
+  html += '<div class="stat gold"><div class="label">Mauzo Jumla</div><div class="num">'+money(revenue)+'</div></div>';
+  html += '<div class="stat"><div class="label">Gharama za Bidhaa</div><div class="num">'+money(cogs)+'</div></div>';
+  html += '<div class="stat brick"><div class="label">Matumizi</div><div class="num">'+money(expenseTotal)+'</div></div>';
+  html += '<div class="stat green"><div class="label">Faida Halisi</div><div class="num">'+money(profit)+'</div></div>';
+  html += '</div>';
+
+  if(!isCashierMode()){
+    html += '<div class="card"><h3>Mtiririko wa Fedha (Kipindi Hiki)</h3><div class="grid" style="margin-bottom:0;">'+
+      '<div class="stat green"><div class="label">Fedha Iliyoingia</div><div class="num">'+money(cashIn)+'</div></div>'+
+      '<div class="stat brick"><div class="label">Fedha Iliyotoka</div><div class="num">'+money(cashOut)+'</div></div>'+
+      '<div class="stat gold"><div class="label">Salio la Kipindi</div><div class="num">'+money(cashFlow)+'</div></div>'+
+      '</div></div>';
+  }
+
+  if(reportRange==='day'){
+    html += '<div class="card"><h3>Mauzo ya '+fmtDate(reportCustomDate)+'</h3>';
+    if(sales.length===0){ html += '<p style="color:var(--muted);font-size:13.5px;margin:0;">Hakuna mauzo yaliyorekodiwa siku hii.</p>'; }
+    else{
+      html += '<table><thead><tr><th>Mteja</th><th>Jumla</th><th>Hali</th><th>Deni Lililobaki</th><th></th></tr></thead><tbody>';
+      sales.slice().reverse().forEach(s=>{
+        const cust = s.customerName || 'Mteja wa Kawaida';
+        const bd = s.balanceDue!=null ? s.balanceDue : (s.status==='Deni'? s.total : 0);
+        html += '<tr><td>'+esc(cust)+'</td><td class="mono">'+money(s.total)+'</td><td><span class="pill '+pillClass(s.status)+'">'+s.status+'</span></td><td class="mono">'+(bd>0? 'TSh '+money(bd) : '-')+'</td>'+
+        '<td><div class="rowactions"><button class="iconsm" data-action="print-receipt" data-id="'+s.id+'" title="Chapisha Risiti">'+ICONS.receipt+'</button><button class="iconsm" data-action="edit-sale" data-id="'+s.id+'">'+ICONS.edit+'</button><button class="iconsm" data-action="delete-sale" data-id="'+s.id+'">'+ICONS.trash+'</button></div></td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+    html += '</div>';
+  }
+
+  html += '<div class="card"><h3>Bidhaa Zinazouzwa Zaidi</h3>';
+  if(topProducts.length===0){ html += '<p style="color:var(--muted);font-size:13.5px;margin:0;">Hakuna data ya mauzo kwa kipindi hiki.</p>'; }
+  else{
+    html += '<table><thead><tr><th>Bidhaa</th><th>Idadi Iliyouzwa</th></tr></thead><tbody>';
+    topProducts.forEach(([name,q])=>{ html += '<tr><td>'+esc(name)+'</td><td class="mono">'+q+'</td></tr>'; });
+    html += '</tbody></table>';
+  }
+  html += '</div>';
+
+  html += '<div class="card"><h3>Deni Jumla la Wateja (hadi sasa)</h3><div class="stat brick" style="margin:0;"><div class="label">Jumla</div><div class="num">'+money(totalDebt)+'</div></div></div>';
+
+  document.getElementById('view').innerHTML = html;
+  const dateInput = document.getElementById('reportDateInput');
+  if(dateInput){
+    dateInput.addEventListener('change', e=>{ reportCustomDate = e.target.value || todayISO(); renderReports(); });
+  }
+}
+let deferredInstallPrompt = null;
+let appIsInstalled = window.matchMedia('(display-mode: standalone)').matches;
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if(currentView==='settings') renderSettings();
+});
+window.addEventListener('appinstalled', ()=>{
+  deferredInstallPrompt = null;
+  appIsInstalled = true;
+  toast('SwaRa imesakinishwa kwenye simu yako');
+  if(currentView==='settings') renderSettings();
+});
+
+/* ================= SETTINGS ================= */
+function renderSettings(){
+  let html = '';
+  if(appIsInstalled){
+    html += '<div class="card green" style="border-color:var(--green);"><h3>SwaRa imeshasakinishwa</h3><p style="font-size:13px;color:var(--muted);margin:0;">Unatumia SwaRa kama app kwenye kifaa hiki.</p></div>';
+  } else if(deferredInstallPrompt){
+    html += '<div class="card"><h3>Sakinisha SwaRa</h3><p style="font-size:13px;color:var(--muted);">Weka SwaRa kwenye skrini ya nyumbani ya simu yako kama app halisi, ifanye kazi bila internet.</p><button class="btn" data-action="install-app">'+ICONS.plus+' Sakinisha App</button></div>';
+  } else {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    const manualMsg = isIOS
+      ? 'Kwenye iPhone, Safari haina kitufe cha moja kwa moja. Gusa aikoni ya kushiriki (mstatili wenye mshale juu) chini ya skrini, kisha telezesha chini na uchague "Add to Home Screen".'
+      : 'Ukiwa kwenye Chrome, fungua menyu (&#8942;) na uchague "Install app" au "Add to Home screen". Kitufe cha moja kwa moja kitaonekana hapa baada ya kuisoma ukurasa kikamilifu.';
+    html += '<div class="card"><h3>Sakinisha SwaRa</h3><p style="font-size:13px;color:var(--muted);margin:0;">'+manualMsg+'</p></div>';
+  }
+  html += '<p class="viewsub">Hifadhi nakala ya data yako au rejesha kutoka faili.</p>';
+  html += '<div class="card"><h3>Hifadhi Nakala (Backup)</h3><p style="font-size:13px;color:var(--muted);">Pakua faili la data yako. Lihifadhi mahali salama.</p><button class="btn" data-action="export-data">Pakua Nakala (.json)</button></div>';
+  html += '<div class="card"><h3>Rejesha Data (Restore)</h3><p style="font-size:13px;color:var(--muted);">Hii itabadilisha data yote iliyopo kwa data ya faili utakalochagua.</p><input type="file" id="importFile" accept="application/json"></div>';
+  html += '<div class="card"><h3>Futa Data Yote</h3><p style="font-size:13px;color:var(--muted);">Kitendo hiki hakiwezi kurudishwa. Tumia kwa tahadhari.</p><button class="btn danger" data-action="reset-data">Futa Data Yote</button></div>';
+  const pinSet = !!localStorage.getItem('dm_owner_pin');
+  html += '<div class="card"><h3>Usalama — PIN ya Mmiliki</h3>';
+  if(!pinSet){
+    html += '<p style="font-size:13px;color:var(--muted);">Weka PIN ili cashier asiweze kuhariri, kufuta mauzo, kurejesha data, au kufuta data bila ruhusa yako.</p>'+
+    '<form id="setPinForm"><label>Weka PIN mpya (namba 4-6)</label><input required type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" name="pin1">'+
+    '<label>Rudia PIN</label><input required type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" name="pin2">'+
+    '<button type="submit" class="btn" style="margin-top:10px;">Hifadhi PIN</button></form>';
+  } else {
+    html += '<p style="font-size:13px;color:var(--muted);">PIN imewekwa. Mauzo hayawezi kuhaririwa au kufutwa bila PIN hii.</p>'+
+    '<button class="btn secondary" data-action="change-pin">Badilisha PIN</button>';
+  }
+  html += '</div>';
+  const cashierOn = isCashierMode();
+  html += '<div class="card"><h3>Hali ya Cashier</h3>';
+  if(!pinSet){
+    html += '<p style="font-size:13px;color:var(--muted);margin:0;">Weka PIN kwanza hapo juu kabla ya kuwasha Hali ya Cashier.</p>';
+  } else if(cashierOn){
+    html += '<p style="font-size:13px;color:var(--muted);">Hali ya Cashier iko HAI — bei ya kununua, faida, salio la fedha, na uwezo wa kuongeza/kuhariri bidhaa vimefichwa. Ripoti pia inahitaji PIN kufunguliwa.</p>'+
+    '<button class="btn secondary" data-action="disable-cashier-mode">Zima Hali ya Cashier (Rudi Mmiliki)</button>';
+  } else {
+    html += '<p style="font-size:13px;color:var(--muted);">Washa hii kabla ya kumkabidhi simu cashier. Itaficha bei ya kununua, faida, salio la fedha, na kuzuia kuongeza/kuhariri bidhaa.</p>'+
+    '<button class="btn" data-action="enable-cashier-mode">Washa Hali ya Cashier</button>';
+  }
+  html += '</div>';
+  document.getElementById('view').innerHTML = html;
+  document.getElementById('importFile').addEventListener('change', e=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        requireOwnerPin(()=>{
+          if(!confirm('Hii itabadilisha data yote iliyopo. Endelea?')) return;
+          DB.write(KEYS.products, data.products||[]);
+          DB.write(KEYS.customers, data.customers||[]);
+          DB.write(KEYS.sales, data.sales||[]);
+          DB.write(KEYS.expenses, data.expenses||[]);
+          toast('Data imerejeshwa');
+          navigate('dashboard');
+        });
+      }catch(err){ toast('Faili si sahihi'); }
+    };
+    reader.readAsText(file);
+  });
+  const setPinForm = document.getElementById('setPinForm');
+  if(setPinForm){
+    setPinForm.addEventListener('submit', e=>{
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const p1 = fd.get('pin1'), p2 = fd.get('pin2');
+      if(p1!==p2){ toast('PIN hazifanani'); return; }
+      if(!/^\d{4,6}$/.test(p1)){ toast('PIN iwe namba 4 mpaka 6'); return; }
+      localStorage.setItem('dm_owner_pin', p1);
+      toast('PIN imehifadhiwa');
+      renderSettings();
+    });
+  }
+}
+function pinPromptModal(cb){
+  const html =
+    '<h3>Weka PIN ya Mmiliki<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<form id="pinCheckForm"><label>PIN</label><input required type="password" inputmode="numeric" name="pin" autofocus>'+
+    '<div class="modal-actions"><button type="button" class="btn secondary block" data-action="close-modal">Ghairi</button><button type="submit" class="btn block">Thibitisha</button></div></form>';
+  openModal(html);
+  document.getElementById('pinCheckForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const entered = new FormData(e.target).get('pin');
+    const stored = localStorage.getItem('dm_owner_pin');
+    if(entered===stored){ closeModal(); cb(); }
+    else{ toast('PIN si sahihi'); }
+  });
+}
+function requireOwnerPin(cb){
+  const stored = localStorage.getItem('dm_owner_pin');
+  if(!stored){ cb(); return; }
+  pinPromptModal(cb);
+}
+function changePinModal(){
+  const html =
+    '<h3>Badilisha PIN<button class="iconbtn" data-action="close-modal">'+ICONS.x+'</button></h3>'+
+    '<form id="changePinForm"><label>PIN Mpya (namba 4-6)</label><input required type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" name="pin1">'+
+    '<label>Rudia PIN Mpya</label><input required type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" name="pin2">'+
+    '<div class="modal-actions"><button type="button" class="btn secondary block" data-action="close-modal">Ghairi</button><button type="submit" class="btn block">Hifadhi</button></div></form>';
+  openModal(html);
+  document.getElementById('changePinForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const p1 = fd.get('pin1'), p2 = fd.get('pin2');
+    if(p1!==p2){ toast('PIN hazifanani'); return; }
+    if(!/^\d{4,6}$/.test(p1)){ toast('PIN iwe namba 4 mpaka 6'); return; }
+    localStorage.setItem('dm_owner_pin', p1);
+    closeModal();
+    toast('PIN imebadilishwa');
+    renderSettings();
+  });
+}
+function exportData(){
+  const data = {
+    products: DB.read(KEYS.products),
+    customers: DB.read(KEYS.customers),
+    sales: DB.read(KEYS.sales),
+    expenses: DB.read(KEYS.expenses),
+    exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'duka-manager-backup-'+todayISO()+'.json';
+  a.click();
+}
+
+/* ================= RENDER ROUTER ================= */
+function render(){
+  if(currentView==='dashboard') renderDashboard();
+  else if(currentView==='products') renderProducts();
+  else if(currentView==='sales') renderSales();
+  else if(currentView==='orders') renderOrders();
+  else if(currentView==='customers') renderCustomers();
+  else if(currentView==='expenses') renderExpenses();
+  else if(currentView==='reports') renderReports();
+  else if(currentView==='settings') renderSettings();
+}
+
+/* ================= GLOBAL ACTIONS ================= */
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-action]');
+  if(!el) return;
+  const action = el.getAttribute('data-action');
+  const id = el.getAttribute('data-id');
+
+  if(action==='close-modal') closeModal();
+  else if(action==='add-product'){ if(isCashierMode()){ toast('Umezuiwa na Mmiliki'); return; } productFormModal(null); }
+  else if(action==='add-stock'){ if(isCashierMode()){ toast('Umezuiwa na Mmiliki'); return; } const p = DB.read(KEYS.products).find(x=>x.id===id); if(p) stockAddModal(p); }
+  else if(action==='edit-product'){ if(isCashierMode()){ toast('Umezuiwa na Mmiliki'); return; } const p = DB.read(KEYS.products).find(x=>x.id===id); productFormModal(p); }
+  else if(action==='delete-product'){ if(isCashierMode()){ toast('Umezuiwa na Mmiliki'); return; } if(confirm('Futa bidhaa hii?')){ const products = DB.read(KEYS.products).filter(x=>x.id!==id); DB.write(KEYS.products, products); toast('Bidhaa imefutwa'); renderProducts(); } }
+  else if(action==='add-customer') customerFormModal(null);
+  else if(action==='edit-customer'){ const c = DB.read(KEYS.customers).find(x=>x.id===id); customerFormModal(c); }
+  else if(action==='delete-customer'){ if(confirm('Futa mteja huyu?')){ const customers = DB.read(KEYS.customers).filter(x=>x.id!==id); DB.write(KEYS.customers, customers); toast('Mteja amefutwa'); renderCustomers(); } }
+  else if(action==='view-customer'){ e.preventDefault(); const c = DB.read(KEYS.customers).find(x=>x.id===id); if(c) customerDetailModal(c); }
+  else if(action==='add-expense') expenseFormModal();
+  else if(action==='delete-expense'){ if(confirm('Futa tumizi hili?')){ const expenses = DB.read(KEYS.expenses).filter(x=>x.id!==id); DB.write(KEYS.expenses, expenses); toast('Tumizi limefutwa'); renderExpenses(); } }
+  else if(action==='cart-add') cartAdd(id);
+  else if(action==='cart-inc') cartChange(id,1);
+  else if(action==='cart-dec') cartChange(id,-1);
+  else if(action==='cart-remove'){ cart = cart.filter(i=>i.productId!==id); renderSales(); }
+  else if(action==='confirm-sale') confirmSale();
+  else if(action==='delete-sale'){ requireOwnerPin(()=>{ if(confirm('Futa mauzo haya? Kiasi cha bidhaa kitarejeshwa ghalani, na deni la mteja litarekebishwa.')){ deleteSale(id); } }); }
+  else if(action==='edit-sale'){ requireOwnerPin(()=>{ const s = DB.read(KEYS.sales).find(x=>x.id===id); if(s) editSaleModal(s); }); }
+  else if(action==='print-receipt'){ const s = DB.read(KEYS.sales).find(x=>x.id===id); if(s) printReceipt(s); }
+  else if(action==='print-receipt-order'){ const s = DB.read(KEYS.sales).find(x=>x.id===id); if(s) printReceipt(s); }
+  else if(action==='add-order') openOrderModal();
+  else if(action==='order-cart-add') orderCartAdd(id);
+  else if(action==='order-cart-inc') orderCartChange(id,1);
+  else if(action==='order-cart-dec') orderCartChange(id,-1);
+  else if(action==='order-cart-remove'){ orderModalCart = orderModalCart.filter(i=>i.productId!==id); renderOrderModalBody(); }
+  else if(action==='order-filter'){ orderFilter = el.getAttribute('data-filter'); renderOrders(); }
+  else if(action==='complete-order'){ const o = DB.read(KEYS.orders).find(x=>x.id===id); if(o) completeOrderModal(o); }
+  else if(action==='cancel-order'){ if(confirm('Ghairi oda hii? Hakuna kitakachorejeshwa kwenye stock kwa sababu bado haijauzwa.')) cancelOrder(id); }
+  else if(action==='print-invoice'){ const o = DB.read(KEYS.orders).find(x=>x.id===id); if(o) printInvoice(o); }
+  else if(action==='report-range'){ reportRange = el.getAttribute('data-range'); renderReports(); }
+  else if(action==='export-data') exportData();
+  else if(action==='install-app'){
+    if(!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(()=>{ deferredInstallPrompt = null; renderSettings(); });
+  }
+  else if(action==='reset-data'){
+    requireOwnerPin(()=>{
+      if(confirm('Una uhakika? Data yote itafutwa kabisa.') && confirm('Uhakika wa mwisho — hii haiwezi kurudishwa.')){
+        Object.values(KEYS).forEach(k=>localStorage.removeItem(k));
+        toast('Data yote imefutwa');
+        navigate('dashboard');
+      }
+    });
+  }
+  else if(action==='change-pin'){ requireOwnerPin(()=>changePinModal()); }
+  else if(action==='enable-cashier-mode'){ localStorage.setItem('dm_cashier_mode','1'); toast('Hali ya Cashier imewashwa'); doNavigate('dashboard'); }
+  else if(action==='disable-cashier-mode'){ requireOwnerPin(()=>{ localStorage.removeItem('dm_cashier_mode'); toast('Umerudi kwenye Hali ya Mmiliki'); renderSettings(); }); }
+});
+
+/* ================= INIT ================= */
+renderNav();
+render();
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      reg.addEventListener('updatefound', ()=>{
+        const newSW = reg.installing;
+        if(!newSW) return;
+        newSW.addEventListener('statechange', ()=>{
+          if(newSW.state==='activated' && navigator.serviceWorker.controller){
+            showUpdateBanner();
+          }
+        });
+      });
+    }).catch(()=>{});
+  });
+}
+function showUpdateBanner(){
+  if(document.getElementById('updateBanner')) return;
+  const b = document.createElement('div');
+  b.id = 'updateBanner';
+  b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:var(--gold);color:var(--ink);padding:10px 16px;text-align:center;font-size:13.5px;font-weight:700;z-index:300;cursor:pointer;';
+  b.textContent = 'Toleo jipya la SwaRa limepatikana — bofya hapa kuisasisha';
+  b.addEventListener('click', ()=>location.reload());
+  document.body.appendChild(b);
+}
+</script>
+</body>
+</html>
